@@ -12,11 +12,12 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Animated,
-  Easing
+  Easing,
+  Platform,
+  StatusBar
 } from "react-native";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import gql from "graphql-tag";
 
 import Card from "../components/Card";
 import { NotificationIcon } from "../components/Icons";
@@ -24,26 +25,25 @@ import Logo from "../components/Logo";
 import Course from "../components/Course";
 import Menu from "../components/Menu";
 import Avatar from "../components/Avatar";
-import { Query } from "react-apollo";
-
-const cardsQuery = gql`
-  query {
-    users {
-      name
-      email
-    }
-  }
-`;
 
 class HomeScreen extends Component {
   static navigationOptions = {
     header: null
   };
+
   state = {
     scale: new Animated.Value(1)
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidMount() {
+    StatusBar.setBarStyle("dark-content", true);
+
+    if (Platform.OS == "android") {
+      StatusBar.setBarStyle("light-content", true);
+    }
+  }
+
+  componentDidUpdate() {
     this.toggleMenu();
   }
 
@@ -101,31 +101,25 @@ class HomeScreen extends Component {
                 style={{ paddingBottom: 30 }}
                 showsHorizontalScrollIndicator={false}
               >
-                <Query query={cardsQuery}>
-                  {({ loading, error, data }) => {
-                    if (loading) return <Message>loading...</Message>;
-                    if (error)
-                      return <Message>{JSON.stringify(error)}</Message>;
-                    return <Message>{JSON.stringify(data)}</Message>;
-                  }}
-                </Query>
                 {cards.map((card, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      this.props.navigation.push("Section", {
-                        section: card
-                      });
-                    }}
-                  >
-                    <Card
-                      title={card.title}
-                      image={card.image}
-                      subtitle={card.subtitle}
-                      caption={card.caption}
-                      logo={card.logo}
-                    />
-                  </TouchableOpacity>
+                  <CardContainer>
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => {
+                        this.props.navigation.push("Section", {
+                          section: card
+                        });
+                      }}
+                    >
+                      <Card
+                        title={card.title}
+                        image={card.image}
+                        subtitle={card.subtitle}
+                        caption={card.caption}
+                        logo={card.logo}
+                      />
+                    </TouchableOpacity>
+                  </CardContainer>
                 ))}
               </ScrollView>
               <Subtitle>Popular Courses</Subtitle>
@@ -214,6 +208,11 @@ const Name = styled.Text`
 //   background-color: black;
 //   border-radius: 22px;
 // `;
+
+const CardContainer = styled.View`
+  flex-direction: row;
+  padding-left: 10px;
+`;
 
 const Message = styled.Text``;
 

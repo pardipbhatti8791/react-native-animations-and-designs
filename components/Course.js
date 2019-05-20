@@ -1,10 +1,14 @@
 import React from "react";
 import styled from "styled-components";
+import { Dimensions } from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
+
+var cardWidth = screenWidth - 40;
 
 const Course = props => {
-  console.log(props);
   return (
-    <Container>
+    <Container style={{ width: cardWidth }}>
       <Cover>
         <Image source={props.image} />
         <Logo source={props.logo} resizeMode="contain" />
