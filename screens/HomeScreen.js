@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import gql from "graphql-tag";
 
 import Card from "../components/Card";
 import { NotificationIcon } from "../components/Icons";
@@ -23,6 +24,16 @@ import Logo from "../components/Logo";
 import Course from "../components/Course";
 import Menu from "../components/Menu";
 import Avatar from "../components/Avatar";
+import { Query } from "react-apollo";
+
+const cardsQuery = gql`
+  query {
+    users {
+      name
+      email
+    }
+  }
+`;
 
 class HomeScreen extends Component {
   static navigationOptions = {
@@ -90,6 +101,14 @@ class HomeScreen extends Component {
                 style={{ paddingBottom: 30 }}
                 showsHorizontalScrollIndicator={false}
               >
+                <Query query={cardsQuery}>
+                  {({ loading, error, data }) => {
+                    if (loading) return <Message>loading...</Message>;
+                    if (error)
+                      return <Message>{JSON.stringify(error)}</Message>;
+                    return <Message>{JSON.stringify(data)}</Message>;
+                  }}
+                </Query>
                 {cards.map((card, index) => (
                   <TouchableOpacity
                     key={index}
@@ -195,6 +214,8 @@ const Name = styled.Text`
 //   background-color: black;
 //   border-radius: 22px;
 // `;
+
+const Message = styled.Text``;
 
 const logos = [
   {
