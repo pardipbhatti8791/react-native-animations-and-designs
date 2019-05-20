@@ -22,8 +22,12 @@ import { NotificationIcon } from "../components/Icons";
 import Logo from "../components/Logo";
 import Course from "../components/Course";
 import Menu from "../components/Menu";
+import Avatar from "../components/Avatar";
 
 class HomeScreen extends Component {
+  static navigationOptions = {
+    header: null
+  };
   state = {
     scale: new Animated.Value(1)
   };
@@ -58,10 +62,10 @@ class HomeScreen extends Component {
                   onPress={this.props.openMenu}
                   style={{ position: "absolute", top: 0, left: 20 }}
                 >
-                  <Avatar source={require("../assets/avatar.jpg")} />
+                  <Avatar />
                 </TouchableOpacity>
                 <Title>Welcome back,</Title>
-                <Name>Gugu</Name>
+                <Name>{this.props.name}</Name>
                 <NotificationIcon
                   style={{ position: "absolute", right: 40, top: 5 }}
                 />
@@ -87,14 +91,22 @@ class HomeScreen extends Component {
                 showsHorizontalScrollIndicator={false}
               >
                 {cards.map((card, index) => (
-                  <Card
+                  <TouchableOpacity
                     key={index}
-                    title={card.title}
-                    image={card.image}
-                    subtitle={card.subtitle}
-                    caption={card.caption}
-                    logo={card.logo}
-                  />
+                    onPress={() => {
+                      this.props.navigation.push("Section", {
+                        section: card
+                      });
+                    }}
+                  >
+                    <Card
+                      title={card.title}
+                      image={card.image}
+                      subtitle={card.subtitle}
+                      caption={card.caption}
+                      logo={card.logo}
+                    />
+                  </TouchableOpacity>
                 ))}
               </ScrollView>
               <Subtitle>Popular Courses</Subtitle>
@@ -119,7 +131,7 @@ class HomeScreen extends Component {
 }
 
 const mapStateToProps = state => {
-  return { action: state.action };
+  return { action: state.action, name: state.name };
 };
 
 const mapDispatchToProps = dispatch => {
@@ -143,6 +155,8 @@ const RootView = styled.View`
 const Container = styled.View`
   flex: 1;
   background-color: #f0f3f5;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 `;
 
 const AnimatedContainer = Animated.createAnimatedComponent(Container);
@@ -175,12 +189,12 @@ const Name = styled.Text`
   font-weight: bold;
 `;
 
-const Avatar = styled.Image`
-  width: 44px;
-  height: 44px;
-  background-color: black;
-  border-radius: 22px;
-`;
+// const Avatar = styled.Image`
+//   width: 44px;
+//   height: 44px;
+//   background-color: black;
+//   border-radius: 22px;
+// `;
 
 const logos = [
   {
