@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import { Query } from "react-apollo";
 
 import Card from "../components/Card";
 import { NotificationIcon } from "../components/Icons";
@@ -25,6 +26,28 @@ import Logo from "../components/Logo";
 import Course from "../components/Course";
 import Menu from "../components/Menu";
 import Avatar from "../components/Avatar";
+import gql from "graphql-tag";
+
+const cardsQuery = gql`
+  query {
+    cards {
+      Title
+      Subtitle
+      Caption
+      Content
+      Image {
+        id
+        url
+        name
+      }
+      Logo {
+        id
+        url
+        name
+      }
+    }
+  }
+`;
 
 class HomeScreen extends Component {
   static navigationOptions = {
@@ -101,26 +124,32 @@ class HomeScreen extends Component {
                 style={{ paddingBottom: 30 }}
                 showsHorizontalScrollIndicator={false}
               >
-                {cards.map((card, index) => (
-                  <CardContainer>
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        this.props.navigation.push("Section", {
-                          section: card
-                        });
-                      }}
-                    >
-                      <Card
-                        title={card.title}
-                        image={card.image}
-                        subtitle={card.subtitle}
-                        caption={card.caption}
-                        logo={card.logo}
-                      />
-                    </TouchableOpacity>
-                  </CardContainer>
-                ))}
+                <Query query={cardsQuery}>
+                  {({ loading, error, data }) => {
+                    if (loading) return <Loading>loading...</Loading>;
+                    if (error)
+                      return <Error>{JSON.stringify(error.message)}</Error>;
+                    return data.cards.map((card, index) => (
+                      <CardContainer key={index}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.props.navigation.push("Section", {
+                              section: card
+                            });
+                          }}
+                        >
+                          <Card
+                            title={card.Title}
+                            image={`http://localhost:1337${card.Image.url}`}
+                            subtitle={card.Subtitle}
+                            caption={card.Caption}
+                            logo={`http://localhost:1337${card.Logo.url}`}
+                          />
+                        </TouchableOpacity>
+                      </CardContainer>
+                    ));
+                  }}
+                </Query>
               </ScrollView>
               <Subtitle>Popular Courses</Subtitle>
               {courses.map((course, index) => (
@@ -214,7 +243,8 @@ const CardContainer = styled.View`
   padding-left: 10px;
 `;
 
-const Message = styled.Text``;
+const Loading = styled.Text``;
+const Error = styled.Text``;
 
 const logos = [
   {

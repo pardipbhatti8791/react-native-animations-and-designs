@@ -1,21 +1,17 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Dimensions } from "react-native";
-
-const screenWidth = Dimensions.get("window").width;
-
 const Card = props => (
   <Container style={{ elevation: 10 }}>
     <Cover>
-      <Image source={props.image} />
+      <Image source={{ uri: props.image }} />
       <Title>{props.title}</Title>
     </Cover>
     <Content>
-      <Logo source={props.logo} />
+      <Logo source={{ uri: props.logo }} />
       <Wrapper>
         <Caption>{props.caption}</Caption>
-        <Subtitle>{props.subtitle.toUpperCase()}</Subtitle>
+        <Subtitle>{props.subtitle}</Subtitle>
       </Wrapper>
     </Content>
   </Container>
