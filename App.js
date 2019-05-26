@@ -10,7 +10,7 @@ import { createHttpLink } from "apollo-link-http";
 import AppNavigator from "./navigator/AppNavigator";
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:1337/graphql"
+  uri: "http://www.gbcoders.com:1337/graphql"
 });
 
 const authLink = setContext((_, { headers }) => {

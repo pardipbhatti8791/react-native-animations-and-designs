@@ -140,10 +140,14 @@ class HomeScreen extends Component {
                         >
                           <Card
                             title={card.Title}
-                            image={`http://localhost:1337${card.Image.url}`}
+                            image={`http://www.gbcoders.com:1337${
+                              card.Image.url
+                            }`}
                             subtitle={card.Subtitle}
                             caption={card.Caption}
-                            logo={`http://localhost:1337${card.Logo.url}`}
+                            logo={`http://www.gbcoders.com:1337${
+                              card.Logo.url
+                            }`}
                           />
                         </TouchableOpacity>
                       </CardContainer>
