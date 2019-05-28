@@ -3,28 +3,85 @@ import styled from "styled-components";
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Alert,
+  Animated,
+  Dimensions
 } from "react-native";
 import { BlurView } from "react-native-blur";
+import { connect } from "react-redux";
 import Success from "./success";
+import Loading from "./Loading";
+
+const screenHeight = Dimensions.get("window").height;
 
 class ModalLogin extends React.Component {
   state = {
     email: "",
-    password: ""
+    password: "",
+    isSuccessfull: false,
+    isLoading: false,
+    top: new Animated.Value(screenHeight),
+    scale: new Animated.Value(1.3),
+    translateY: new Animated.Value(0)
   };
 
+  componentDidUpdate() {
+    if (this.props.action === "openLogin") {
+      Animated.timing(this.state.top, {
+        toValue: 0,
+        duration: 0
+      }).start();
+      Animated.spring(this.state.scale, {
+        toValue: 1
+      }).start();
+      Animated.timing(this.state.translateY, {
+        toValue: 0,
+        duration: 0
+      });
+    }
+
+    if (this.props.action === "closeLogin") {
+      // setTimeout(() => {
+      Animated.timing(this.state.top, {
+        toValue: screenHeight,
+        duration: 0
+      }).start();
+      Animated.spring(this.state.scale, {
+        toValue: 1.3
+      }).start();
+      // }, 500);
+
+      Animated.timing(this.state.translateY, {
+        toValue: 1000,
+        duration: 500
+      }).start();
+    }
+  }
+
   handleLogin = () => {
-    alert(JSON.stringify(this.state));
+    // alert(JSON.stringify(this.state));
+    this.setState({ isLoading: true });
+
+    setTimeout(() => {
+      this.setState({ isLoading: false });
+      this.setState({ isSuccessfull: true });
+
+      setTimeout(() => {
+        this.props.closeLogin();
+        this.setState({ isSuccessfull: false });
+      }, 1000);
+    }, 2000);
   };
 
   tappedBackground = () => {
     Keyboard.dismiss();
+    this.props.closeLogin();
   };
 
   render() {
     return (
-      <Container>
+      <AnimatedContainer style={{ top: this.state.top }}>
         <TouchableWithoutFeedback onPress={this.tappedBackground}>
           <BlurView
             style={{
@@ -39,7 +96,18 @@ class ModalLogin extends React.Component {
           />
         </TouchableWithoutFeedback>
 
-        <Modal>
+        <AnimatedModal
+          style={{
+            transform: [
+              {
+                scale: this.state.scale
+              },
+              {
+                translateY: this.state.translateY
+              }
+            ]
+          }}
+        >
           <Logo source={require("../assets/logo-xd.png")} />
           <Text>GBCODERS, Web & Mobile Development</Text>
           <TextInput
@@ -61,14 +129,33 @@ class ModalLogin extends React.Component {
               <ButtonText>Login</ButtonText>
             </Button>
           </TouchableOpacity>
-        </Modal>
-        <Success />
-      </Container>
+        </AnimatedModal>
+        <Success isActive={this.state.isSuccessfull} />
+        <Loading isActive={this.state.isLoading} />
+      </AnimatedContainer>
     );
   }
 }
 
-export default ModalLogin;
+const mapStateToProps = state => {
+  return {
+    action: state.action
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    closeLogin: () =>
+      dispatch({
+        type: "CLOSE_LOGIN"
+      })
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ModalLogin);
 
 const Container = styled.View`
   position: absolute;
@@ -80,6 +167,8 @@ const Container = styled.View`
   justify-content: center;
   align-items: center;
 `;
+
+const AnimatedContainer = Animated.createAnimatedComponent(Container);
 const Modal = styled.View`
   width: 335px;
   height: 370px;
@@ -87,7 +176,9 @@ const Modal = styled.View`
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   align-items: center;
+  z-index: 5;
 `;
+const AnimatedModal = Animated.createAnimatedComponent(Modal);
 const Logo = styled.Image`
   width: 44px;
   height: 44px;

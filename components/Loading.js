@@ -4,7 +4,7 @@ import LottieView from "lottie-react-native";
 import { Animated, Dimensions } from "react-native";
 
 const screenHeight = Dimensions.get("window").height;
-class Success extends React.Component {
+class Loading extends React.Component {
   state = {
     top: new Animated.Value(0),
     opacity: new Animated.Value(0),
@@ -40,9 +40,9 @@ class Success extends React.Component {
         }}
       >
         <LottieView
-          source={require("../assets/success.json")}
+          source={require("../assets/loading.json")}
           autoPlay={false}
-          loop={false}
+          loop={true}
           ref={animation => {
             this.animation = animation;
           }}
@@ -52,7 +52,7 @@ class Success extends React.Component {
   }
 }
 
-export default Success;
+export default Loading;
 
 const Container = styled.View`
   width: 100%;

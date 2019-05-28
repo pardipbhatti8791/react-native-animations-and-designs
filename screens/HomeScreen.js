@@ -94,7 +94,7 @@ class HomeScreen extends Component {
             <ScrollView style={{ height: "100%" }}>
               <TitleBar>
                 <TouchableOpacity
-                  onPress={this.props.openMenu}
+                  onPress={this.props.openLogin}
                   style={{ position: "absolute", top: 0, left: 20 }}
                 >
                   <Avatar />
@@ -187,6 +187,10 @@ const mapDispatchToProps = dispatch => {
     openMenu: () =>
       dispatch({
         type: "OPEN_MENU"
+      }),
+    openLogin: () =>
+      dispatch({
+        type: "OPEN_LOGIN"
       })
   };
 };
