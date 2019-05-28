@@ -27,6 +27,7 @@ import Course from "../components/Course";
 import Menu from "../components/Menu";
 import Avatar from "../components/Avatar";
 import gql from "graphql-tag";
+import ModalLogin from "../components/ModalLogin";
 
 const cardsQuery = gql`
   query {
@@ -171,6 +172,7 @@ class HomeScreen extends Component {
             </ScrollView>
           </SafeAreaView>
         </AnimatedContainer>
+        <ModalLogin />
       </RootView>
     );
   }
