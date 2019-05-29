@@ -1,32 +1,33 @@
 import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import { AsyncStorage } from "react-native";
 
 class Avatar extends React.Component {
-  state = {
-    photo: "https://cl.ly/c2077ba6f3de/download/avatar-default.jpg"
-  };
   componentDidMount() {
-    fetch("https://uinames.com/api/?ext&region=india&gender=female", {
-      headers: new Headers({})
-    })
-      .then(response => response.json())
-      .then(resp => {
-        this.setState({
-          photo: resp.photo
-        });
-        this.props.updateName(resp.name);
-      });
+    this.loadState();
   }
 
+  loadState = () => {
+    AsyncStorage.getItem("state").then(serializedState => {
+      alert(serializedState);
+      const state = JSON.parse(serializedState);
+      if (state) {
+        this.props.updateName(state.name);
+        this.props.updateAvatar(state.avatar);
+      }
+    });
+  };
+
   render() {
-    return <Image source={{ uri: this.state.photo }} />;
+    return <Image source={{ uri: this.props.avatar }} />;
   }
 }
 
 const mapStateToProps = state => {
   return {
-    name: state.name
+    name: state.name,
+    avatar: state.avatar
   };
 };
 
@@ -36,6 +37,11 @@ const mapDispatchToProps = dispatch => {
       dispatch({
         type: "UPDATE_NAME",
         name: name
+      }),
+    updateAvatar: avatar =>
+      dispatch({
+        type: "UPDATE_AVATAR",
+        avatar
       })
   };
 };

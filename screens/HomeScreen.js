@@ -69,6 +69,7 @@ class HomeScreen extends Component {
 
   componentDidUpdate() {
     this.toggleMenu();
+    alert(this.props.name);
   }
 
   toggleMenu = () => {
@@ -85,6 +86,14 @@ class HomeScreen extends Component {
     }
   };
 
+  handleAvatar = () => {
+    if (this.props.name) {
+      this.props.openMenu();
+    } else {
+      this.props.openLogin();
+    }
+  };
+
   render() {
     return (
       <RootView>
@@ -94,7 +103,7 @@ class HomeScreen extends Component {
             <ScrollView style={{ height: "100%" }}>
               <TitleBar>
                 <TouchableOpacity
-                  onPress={this.props.openLogin}
+                  onPress={this.handleAvatar}
                   style={{ position: "absolute", top: 0, left: 20 }}
                 >
                   <Avatar />

@@ -6,12 +6,16 @@ import {
   Keyboard,
   Alert,
   Animated,
-  Dimensions
+  Dimensions,
+  AsyncStorage
 } from "react-native";
 import { BlurView } from "react-native-blur";
 import { connect } from "react-redux";
 import Success from "./success";
 import Loading from "./Loading";
+
+import firebase from "./Firebase";
+import { saveState } from "./AsyncStorage";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -26,6 +30,10 @@ class ModalLogin extends React.Component {
     translateY: new Animated.Value(0)
   };
 
+  componentDidMount() {
+    this.retrieveName();
+  }
+
   componentDidUpdate() {
     if (this.props.action === "openLogin") {
       Animated.timing(this.state.top, {
@@ -37,41 +45,76 @@ class ModalLogin extends React.Component {
       }).start();
       Animated.timing(this.state.translateY, {
         toValue: 0,
-        duration: 0
-      });
+        duration: 200
+      }).start();
     }
 
     if (this.props.action === "closeLogin") {
-      // setTimeout(() => {
-      Animated.timing(this.state.top, {
-        toValue: screenHeight,
-        duration: 0
-      }).start();
-      Animated.spring(this.state.scale, {
-        toValue: 1.3
-      }).start();
-      // }, 500);
+      setTimeout(() => {
+        Animated.timing(this.state.top, {
+          toValue: screenHeight,
+          duration: 0
+        }).start();
+        Animated.spring(this.state.scale, {
+          toValue: 1.3
+        }).start();
+      }, 500);
 
       Animated.timing(this.state.translateY, {
         toValue: 1000,
-        duration: 500
+        duration: 200
       }).start();
     }
   }
 
+  storeName = async email => {
+    try {
+      await AsyncStorage.setItem("email", email);
+      this.props.updateName(email);
+    } catch (err) {}
+  };
+
+  retrieveName = async () => {
+    try {
+      const name = await AsyncStorage.getItem("email");
+      this.props.updateName(name);
+    } catch (error) {}
+  };
+
   handleLogin = () => {
-    // alert(JSON.stringify(this.state));
     this.setState({ isLoading: true });
 
-    setTimeout(() => {
-      this.setState({ isLoading: false });
-      this.setState({ isSuccessfull: true });
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(this.state.email, this.state.password)
+      .then(response => {
+        this.setState({ isLoading: false });
+        this.setState({ isSuccessfull: true });
+        // this.storeName(response.user.email);
+        this.fetchUser();
 
-      setTimeout(() => {
-        this.props.closeLogin();
-        this.setState({ isSuccessfull: false });
-      }, 1000);
-    }, 2000);
+        setTimeout(() => {
+          this.props.closeLogin();
+          this.setState({ isSuccessfull: false });
+        }, 1000);
+      })
+      .catch(error => {
+        // AsyncStorage.clear();
+        Alert.alert("Error", error.message);
+        this.setState({ isLoading: false });
+      });
+  };
+
+  fetchUser = () => {
+    fetch("https://uinames.com/api/?ext&region=india&gender=female", {
+      headers: new Headers({})
+    })
+      .then(response => response.json())
+      .then(resp => {
+        const name = resp.name;
+        const avatar = resp.photo;
+        saveState({ name, avatar });
+      });
   };
 
   tappedBackground = () => {
@@ -148,6 +191,11 @@ const mapDispatchToProps = dispatch => {
     closeLogin: () =>
       dispatch({
         type: "CLOSE_LOGIN"
+      }),
+    updateName: name =>
+      dispatch({
+        type: "UPDATE_NAME",
+        name
       })
   };
 };
